@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+</head>
+<body style="visibility: hidden;">
+    <!-- Fix for Firefox FOUC -->
+    <script>0</script>
+    <div id="menu" class="page active">
+        <button id="start-game">Play</button>
+    </div>
+    <div id="table-wrapper" class="page">
+        <div id="table">
+            <div id="game-info">
+                <h1 id="bankroll"><span id="bank-symbol"></span>$<span id="balance"></span></h1>
+                <h1 id="shoe"><span id="card-symbol"></span><span id="card-count"></span></h1>
+            </div>
+            <div id="dealer-pit">
+                <div id="dealer-cards"></div>
+                <div id="dealer-score">
+                    <h1></h1>
+                    <h2>Dealer</h2>
+                </div>
+            </div>
+            <div id="pit-controls">
+                <div id="lh-controls">
+                    <button id="insurance"><span id="insurance-icon"></span>Insurance</button>
+                    <button id="hit"><span id="hit-icon"></span>Hit</button>
+                </div>
+                <div id="center-controls">
+                    <!-- Chip -->
+                    <button id="double">Double</button>
+                    <h1 id="bet">$<span id="current-bet"></span></h1>
+                </div>
+                <div id="rh-controls">
+                    <button id="split"><span id="split-icon"></span>Split</button>
+                    <button id="stand"><span id="stand-icon"></span>Stand</button>
+                </div>
+            </div>
+            <div id="player-pit">
+                <div id="player-cards"></div>
+                <div id="player-score">
+                    <h1></h1>
+                    <h2>Player</h2>
+                </div>
+            </div>
+        </div>
+        <div id="bet-controls">
+            <div id="player-chips">
+                <button class="std-chip" data-amnt="1"></button>
+                <button class="std-chip" data-amnt="2.50"></button>
+                <button class="std-chip" data-amnt="5"></button>
+                <button class="std-chip" data-amnt="25"></button>
+                <button class="std-chip" data-amnt="50"></button>
+                <button class="std-chip" data-amnt="100"></button>
+                <button class="std-chip" data-amnt="500"></button>
+                <button class="std-chip" data-amnt="1000"></button>
+                <button class="std-chip" data-amnt="5000"></button>
+                <button class="plaque" data-amnt="10000"></button>
+            </div>
+            <button id="bet-btn">Place Bet</button>
+            <button id="cash-out-btn">Cash Out</button>
+        </div>
+    </div>
+    <div id="game-over">
+        <h1>Game Over!</h1>
+        <button id="restart-game">Play Again <span id="restart-symbol"></span></button>
+    </div>
+</body>
+</html>
