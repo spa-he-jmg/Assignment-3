@@ -3,6 +3,7 @@ import { Card } from './Card.js';
 export class Deck {
     constructor() {
         this.cards = [];
+        this.build();
     }
 
     build() {
@@ -28,16 +29,6 @@ export class Deck {
             for (const card in cards) {
                 this.cards.push(new Card(suit, card, cards[card]));
             }
-        }
-    }
-
-    shuffle() {
-        for(let i = 51; i > 0; i--) {
-            const r = Math.floor(Math.random() * (i + 1));
-            const temp = this.cards[i];
-
-            this.cards[i] = this.cards[r];
-            this.cards[r] = temp;
         }
     }
 }

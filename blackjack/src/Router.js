@@ -6,7 +6,7 @@ export function router(path) {
     const gameOver = document.getElementById('game-over');
 
     // Display route
-    switch (key) {
+    switch (path) {
         case 'table':
             menu.classList.remove('active');
             gameOver.remove('active');

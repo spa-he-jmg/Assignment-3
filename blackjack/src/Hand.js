@@ -5,6 +5,7 @@ export class Hand {
         this.bet = 0;
         this.score = 0;
         this.cards = [];
+        this.blackjack = false;
         this.softAce = false;
         this.insurance = false;
         this.done = false;
@@ -27,23 +28,22 @@ export class Hand {
         }
     }
 
-    insure() {
+    stand() {
         try {
-            if (this.cards.length !== 2 && this.insurance) {
-                throw new Error('Insurance can only be on intitial hand.');
+            if (this.done) {
+                throw new Error('Hand already done');
             }
 
-            this.insurance = this.bet / 2;
-
+            this.done = true;
         } catch (error) {
-            console.log('error');
-
+            console.log(error);
             return false;
         }
     }
 
     addCard(card) {
         try {
+            console.log(card);
             // Check if hand is complete
             if (this.done || this.score > 20) {
                 throw new Error('Hand is already complete');
@@ -60,18 +60,25 @@ export class Hand {
             // Increase score
             this.score += (card.value === 11 && this.score > 10) ? 1 : card.value;
 
-            // Check for bust with soft ace
-            if (this.score > 21 && this.softAce) {
-                // Decrement soft ace
-                this.score -= 10;
-                
-                // Change soft ace check
-                this.softAce = false;
-            }
-
-            // Check if score is over 20
-            if (this.score > 20) {
+            // Check for black jack
+            if (this.cards.length === 2 && this.score === 21) {
+                this.blackjack = true;
                 this.done = true;
+            }
+            else {
+                // Check for bust with soft ace
+                if (this.score > 21 && this.softAce) {
+                    // Decrement soft ace
+                    this.score -= 10;
+                    
+                    // Change soft ace check
+                    this.softAce = false;
+                }
+
+                // Check if score is over 20
+                if (this.score > 20) {
+                    this.done = true;
+                }
             }
             
             // Card was added succesfully
@@ -88,7 +95,7 @@ export class Hand {
     splitHand() {
         try {
             // Check if split is valid
-            if (this.cards.length !== 2 || (this.cards.length === 2 && this.cards[0].value !== this.cards[1])) {
+            if (this.cards.length !== 2 || (this.cards.length === 2 && this.cards[0].value !== this.cards[1].value)) {
                 throw new Error('Split is not valid.');
             }
 

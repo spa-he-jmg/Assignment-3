@@ -1,22 +1,48 @@
 import { Shoe } from './Shoe.js';
 import { Hand } from './Hand.js';
+import { Table } from './Table.js';
 
 export class Game {
 
     constructor() {
         this.shoe = new Shoe();
-        this.shoe.shuffle;
-
+        this.shoe.shuffle();
+        console.log(this.shoe.decks);
+ 
         this.discard = [];
         
-
-        this.wallet = 1000;
-        this.initBet = 0;
+        this.wallet = 995;
+        this.initBet = 5;
+        this.prevBet = 0;
+        this.insurBet = false;
 
         this.userHands = [new Hand()];
         this.dealerHand = new Hand();
 
+        this.splits = 0;
+
         this.currentHand = 0;
+        this.table = new Table();
+
+        this.startRound();
+    }
+
+    startRound() {
+        // Clear hands
+        this.userHands = [new Hand()];
+        this.dealerHand = new Hand();
+        this.currentHand = 0;
+        this.insurBet = false;
+
+        this.table.updateBankroll(this.wallet.toLocaleString());
+        this.table.updateShoeCount(this.shoe.decks.length);
+
+        // Display bets
+        this.table.showBets();
+
+        if (this.prevBet) {
+            this.table.updateBet(this.prevBet);
+        }
     }
 
     addbet(amount) {
@@ -25,67 +51,99 @@ export class Game {
             amount = this.wallet;
         }
 
-        if (amount <= wallet) {
+        if (amount <= this.wallet) {
 
-            this.wallet -= amount
+            console.log('Adding bet');
+
+            this.wallet -= amount;
             this.initBet += amount;
 
-            // Display bet added to table
-
-            // Update available chips
+            this.table.updateBet(this.initBet, this.wallet);
+            this.table.updateBankroll(this.wallet);
         }
         else {
-            console.log('Insufficient balance in wallet.')
+            console.log('Insufficient balance in wallet.');
         }
     }
 
-    removeBet(amount) {
-            if (this.initBet >= amount) {
-                this.initBet -= amount;
-            }
+    removeBet() {
+            this.wallet += this.initBet;
+            this.initBet = 0;
 
-            if (this.initBet === 0) {
-                // Remove the deal button
-            }
+            this.table.updateBet(0, this.wallet);
+            this.table.updateBankroll(this.wallet);
     }
 
-    initHand() {
+    dealHand() {
         if (this.initBet >= 5) {
+            this.table.showTable();
             for(let i = 0; i < 2; i++) {
-                hit('user');
+                this.hit('user');
 
-                hit('dealer');
+                this.hit('dealer');
             }
 
-            if (this.dealerHand.cards[1].value === 11 && 
-                this.wallet >= this.userHands[0].bet / 2) {
-                // Display option for insurance
+            //this.table.showControls();
 
+            let initHand = this.userHands[0];
+            initHand.bet = this.initBet;
+
+            if (this.dealerHand.cards[1].value === 11 && 
+                this.wallet >= this.initBet / 2) {
+                // Display option for insurance
+                this.table.offerInsurance();
+            }
+            else {
+                console.log('Checking init hand.');
+                this.checkInitHand(initHand);
+            }
+        }
+    }
+
+    checkInitHand(initHand) {
+        if (initHand.blackjack) {
+            this.checkScores();
+        }
+        else {
+
+            this.table.showControls();
+
+            if (this.wallet >= this.initBet) {
+                this.table.offerDouble();
+            }
+
+            if (initHand.cards[0].value === initHand.cards[1].value) {
+                this.table.offerSplit();
             }
         }
     }
 
     insurance() {
-        const insureCheck = this.userHands[0].insure();
+       this.insurBet = this.initBet / 2;
 
-        if (!insureCheck) {
-            // Display insurance error
-        }
-
-        // Display insurance
+       if (this.dealerHand.blackjack) {
+           this.wallet += this.insurBet;
+           this.table.insuranceWon();
+           this.checkScores();
+       }
+       else {
+           this.table.insuranceLost();
+           this.checkInitHand();
+       }
     }
 
     doubleDown() {
-        const currentBet = this.userHands[this.currentHand].bet;
+        let currentBet = this.userHands[this.currentHand].bet;
+
         if (this.wallet >= currentBet) {
             this.wallet -= currentBet;
             currentBet += currentBet;
 
-            // Remove from display wallet
+            this.table.updateBet(currentBet, this.wallet);
+            this.table.updateBankroll(this.wallet);
+            this.table.removeDouble();
 
-            // Display added bet
-
-            // Remove option to double
+            this.hit('user');
         }
         else {
             console.log('Insufficient ballance in wallet')
@@ -95,36 +153,32 @@ export class Game {
     hit(player) {
 
         // Pick card from shoe
-        const card = this.shoe[Math.floor(Math.random() * this.shoe.length)];
+        const cardIndex = Math.floor(Math.random() * this.shoe.decks.length);
+        const card = this.shoe.decks[cardIndex];
 
         if (player === 'user' && !this.userHands[this.currentHand].done) {
 
             const hand = this.userHands[this.currentHand];
 
-            const addCheck = this.userHands[this.currentHand].addCard(card);
+            const addCheck = hand.addCard(card);
 
             if (!addCheck) {
                 // Display that there was an error
-                
+                console.log('Could not add card');
             }
             else {
                 // Display new card
+
+                this.discard.push(card);
+                this.shoe.decks.splice(cardIndex, 1);
+                
+                this.table.showCard('player', card, this.shoe.decks.length, false);
+                this.table.updateScore('player', this.userHands[this.currentHand].score);
             }
 
-            // Check for black jack
-            if (hand.score === 21) {
-                // Display user black jack
+            if (hand.done) {
+                this.endUserTurn();
             }
-
-            // Check for bust
-            if (hand.score > 21) {
-                // Display user bust
-            }
-
-            if ((this.currentHand + 1) < this.userHands.length) {
-                // Show next hand
-            }
-
         }
         else if (player === 'dealer' && !this.dealerHand.done) {
             
@@ -134,31 +188,35 @@ export class Game {
                 // Display that there was a dealer error
             }
             else {
-                if (this.dealerHand.cards.length === 1) {
-                    // Display card face down
-                }
                 // Display new card
-            }
 
-            if (this.dealerHand.score)
+                this.discard.push(card);
+                this.shoe.decks.splice(cardIndex, 1);
 
-            if (this.dealerHand.score === 21) {
-                // Display dealer blackjack
-
-                // End game
-            }
-
-            if (this.dealerHand > 21) {
-                // Display dealer bust
+                this.table.showCard('dealer', card, this.shoe.decks.length, this.dealerHand.cards.length === 1);
+                this.table.updateScore('dealer', this.dealerHand.score - this.dealerHand.cards[0].value);
             }
         }
     }
     
-    stand() {
-        
+    stand(player) {
+        if (player === 'user') {
+            const standCheck = this.userHands[this.currentHand].stand();
+
+            if (standCheck) {
+                this.endUserTurn();
+            }
+        }
+        else if (player === 'dealer') {
+            const standCheck = this.dealerHand.stand();
+
+            if (standCheck) {
+                console.log('Dealer stood');
+            }
+        }
     }
 
-    split(){
+    split() {
         // Get current hand
         const hand = this.userHands[this.currentHand];
 
@@ -184,14 +242,97 @@ export class Game {
                 // Add split hand to user hands
                 this.userHands.push(splitHand);
 
-                // Display split hand and bet to the side
+               this.table.split();
 
-                // Add card to current hand
-                this.hit();
+               this.hit('user');
             }
         }
         else {
             console.log('Insufficient ballance in wallet');
+        }
+    }
+
+    endUserTurn() {
+        if (this.currentHand + 1 < this.userHands.length) {
+            this.nextHand();
+        }
+        else {
+            this.dealerTurn();
+        }
+    }
+
+    nextHand() {
+        this.table.clearHand();
+        
+        this.table.hideControls();
+
+        this.currentHand += 1;
+
+        this.table.showCard('player', this.userHands[this.currentHand].cards[0], this.shoe.decks.length, false);
+
+        this.hit('user');
+
+        if (this.userhands[this.currentHand].cards[0].value === 11 && this.userHands[this.currentHand].cards[1].value === 11 && this.splits < 3) {
+            this.table.offerSplit();
+        }
+        else {
+
+        if (this.userhands[this.currentHand].cards[0].value === this.userHands[this.currentHand].cards[1].value && this.splits < 3) {
+            this.table.offerSplit();
+            this.offerDouble
+        }
+
+    }
+   }
+
+    dealerTurn() {
+        
+        this.table.removeHoleCard();
+        this.table.showHoleCard(this.dealerHand.cards[0], this.dealerHand.score);
+
+
+        while(this.dealerHand.score <= 16) {
+
+            this.hit('dealer');
+        }
+
+        if (!this.dealerHand.done) {
+            this.dealerHand.done = true;
+        }
+
+        this.checkScores();
+    }
+
+    checkScores() {
+        this.table.hideControls();
+
+        if (this.userHands[0].blackjack) {
+            if (this.dealerHand.blackjack) {
+                this.table.push();
+                this.wallet += this.userHands[0].bet;
+            }
+            else {
+                this.table.playerWin();
+                this.wallet += this.userHands[0].bet * 1.5;
+            }
+        }
+
+        for(let i = 0; i < this.userHands.length; i++) {
+            if (this.userHands[i].score > 21) {
+                this.table.dealerWin();
+            }
+            else if (this.dealerHand.score > 21) {
+                this.table.playerWin();
+            }
+            else if (this.userHands[i].score === this.dealerHand.score) {
+                this.table.push();
+            }
+            else if (this.userHands[i].score < this.dealerHand.score) {
+                this.table.dealerWin()
+            }
+            else if (this.userhands[i].score > this.dealerHand.score) {
+                this.table.playerWin();
+            }
         }
     }
 }
