@@ -9,7 +9,7 @@ export function router(path) {
     switch (path) {
         case 'table':
             menu.classList.remove('active');
-            gameOver.remove('active');
+            gameOver.classList.remove('active');
             table.classList.add('active');
             break;
         case 'game-over':

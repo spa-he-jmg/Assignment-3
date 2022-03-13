@@ -43,7 +43,6 @@ export class Hand {
 
     addCard(card) {
         try {
-            console.log(card);
             // Check if hand is complete
             if (this.done || this.score > 20) {
                 throw new Error('Hand is already complete');

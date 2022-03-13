@@ -1,4 +1,5 @@
 import { templates } from './Templates.js';
+import { router } from './Router.js';
 
 export class Table {
     constructor() {
@@ -30,10 +31,11 @@ export class Table {
         this.resultModal = document.getElementById('result-modal');
         this.resultMessage = document.getElementById('result-message');
         this.splitCards = document.getElementById('split-cards');
+        this.takeHome = document.getElementById('take-home');
     }
 
     updateBankroll(balance) {
-        this.bankRoll.textContent = balance; 
+        this.bankRoll.textContent = balance.toLocaleString(); 
     }
 
     updateShoeCount(count) {
@@ -51,6 +53,8 @@ export class Table {
         this.playerPit.classList.add('inactive');
         this.betControls.classList.remove('inactive');
         this.betControls.classList.add('active');
+        this.resultModal.classList.remove('active');
+        this.resultModal.classList.add('inactive');
     }
 
     updateBet(bet, wallet) {
@@ -146,8 +150,12 @@ export class Table {
         this.splitBtn.classList.add('inactive');
     }
 
-    clearHand() {
+    resetTable() {
         this.playerCards.innerHTML = '';
+        this.dealerCards.innerHTML = '';
+
+        this.updateScore('player', 0);
+        this.updateScore('dealer', 0);
     }
 
     removeHoleCard() {
@@ -166,6 +174,26 @@ export class Table {
     }
 
     dealerWin() {
-        
+        this.resultMessage.textContent = 'House wins';
+        this.resultModal.classList.remove('inactive');
+        this.resultModal.classList.add('active');
+    }
+
+    playerWin() {
+        this.resultMessage.textContent = 'Player wins';
+        this.resultModal.classList.remove('inactive');
+        this.resultModal.classList.add('active');
+    }
+
+    push() {
+        this.resultMessage.textContent = 'Push';
+        this.resultModal.classList.remove('inactive');
+        this.resultModal.classList.add('active');
+    }
+
+    gameOver(amount) {
+        let gain = amount - 1000;
+        this.takeHome.textContent = gain.toLocaleString();
+        router('game-over');
     }
 }

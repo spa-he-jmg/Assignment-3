@@ -25,10 +25,6 @@ document.getElementById('start-game').addEventListener('click', () => {
         game.addbet('all');
     });
 
-    document.getElementById('cash-out-btn').addEventListener('click', () => {
-
-    });
-
     document.getElementById('hit').addEventListener('click', () => {
         game.hit('user');
     });
@@ -39,5 +35,13 @@ document.getElementById('start-game').addEventListener('click', () => {
 
     document.getElementById('split').addEventListener('click', () => {
         game.split();
+    });
+
+    document.getElementById('stand').addEventListener('click', () => {
+        game.stand();
+    });
+
+    document.getElementById('cash-out-btn').addEventListener('click', () => {
+        game.endGame();
     });
 });
