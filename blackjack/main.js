@@ -2,6 +2,9 @@ import { router } from './src/Router.js';
 import { Game } from './src/Game.js';
 
 document.getElementById('start-game').addEventListener('click', () => {
+    document.getElementById('player-cards').replaceChildren();
+    document.getElementById('dealer-cards').replaceChildren();
+
     router('table');
     const game = new Game();
 

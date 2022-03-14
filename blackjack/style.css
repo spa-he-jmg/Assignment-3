@@ -48,7 +48,7 @@ body {
     display: inline-block;
 }
 
-#start-game {
+#start-game, #restart-game {
     padding: 10px 20px;
     font-size: 1.3em;
     min-width: 200px;

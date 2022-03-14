@@ -98,10 +98,14 @@ export class Table {
         this.playerPit.classList.add('active');
         this.betControls.classList.add('inactive');
         this.betControls.classList.remove('active');
+        this.resultModal.classList.remove('active');
+        this.resultModal.classList.add('inactive');
+        this.hideControls();
     }
 
     showControls() {
         this.lhControls.classList.remove('hidden');
+        this.doubleBtn.classList.remove('hidden');
         this.rhControls.classList.remove('hidden');
     }
 
@@ -144,6 +148,11 @@ export class Table {
         this.doubleBtn.classList.add('hidden');
     }
 
+    removeInsuranceModal() {
+        this.insuranceModal.classList.remove('active');
+        this.insuranceModal.classList.add('inactive');
+    }
+
     split() {
         this.splitCards.classList.remove('hidden');
         this.playerCards.removeChild(this.playerCards.lastChild);
@@ -151,8 +160,8 @@ export class Table {
     }
 
     resetTable() {
-        this.playerCards.innerHTML = '';
-        this.dealerCards.innerHTML = '';
+        this.playerCards.replaceChildren();
+        this.dealerCards.replaceChildren();
 
         this.updateScore('player', 0);
         this.updateScore('dealer', 0);
@@ -175,18 +184,21 @@ export class Table {
 
     dealerWin() {
         this.resultMessage.textContent = 'House wins';
+        console.log('should be dealer win message');
         this.resultModal.classList.remove('inactive');
         this.resultModal.classList.add('active');
     }
 
     playerWin() {
         this.resultMessage.textContent = 'Player wins';
+        console.log('should be player win message');
         this.resultModal.classList.remove('inactive');
         this.resultModal.classList.add('active');
     }
 
     push() {
         this.resultMessage.textContent = 'Push';
+        console.log('should be push message');
         this.resultModal.classList.remove('inactive');
         this.resultModal.classList.add('active');
     }
